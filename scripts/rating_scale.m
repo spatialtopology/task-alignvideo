@@ -1,4 +1,4 @@
-function [ratings, times, RT] = rating_scale(p, base_path, biopac, channel)
+function [ratings, times, RT] = rating_scale(p, cue_tex, biopac, channel)
 
 % EXPLAIN SCALE
 % ********************************************************************
@@ -28,7 +28,7 @@ function [ratings, times, RT] = rating_scale(p, base_path, biopac, channel)
 
 %% Directory for rating images
 % base_path = '/home/spacetop/repos/func_align_videos_experiment_files/';
-prompt_path = fullfile(base_path, 'cues', 'rating_prompts');
+% prompt_path = fullfile(base_path, 'cues', 'rating_prompts');
 
 
 %% Get window%base_path = fileparts(pwd);
@@ -82,18 +82,18 @@ dspl.ycenter = dspl.screenHeight/2;
 %                       Prepare rating prompt images
 %----------------------------------------------------------------------
 % Return full list of prompt images from directory+pattern:
-image_ext = '*.png';
-prompt_files=dir(fullfile(prompt_path, image_ext));
-if isempty(prompt_files)
-    fprintf('ERROR: No images in directory\n')
-    fullfile(prompt_path, image_ext)
-    %     prompt_files
-else
-    for i=1:size(prompt_files,1)
-        prompt_files(i).name = [ prompt_path filesep prompt_files(i).name ];
-    end
-end
-prompt_count = size(prompt_files,1);
+% image_ext = '*.png';
+% prompt_files=dir(fullfile(prompt_path, image_ext));
+% if isempty(prompt_files)
+%     fprintf('ERROR: No images in directory\n')
+%     fullfile(prompt_path, image_ext)
+%     %     prompt_files
+% else
+%     for i=1:size(prompt_files,1)
+%         prompt_files(i).name = [ prompt_path filesep prompt_files(i).name ];
+%     end
+% end
+prompt_count = size(cue_tex,2);
 
 
 %----------------------------------------------------------------------
@@ -107,12 +107,12 @@ RT = zeros(prompt_count,1);
 %                       Begin Rating Loop
 %------------------------------------------------------------------
 try
-    
+
     for i = 1:prompt_count
         biopac_video(biopac, channel, channel.rating, 0);
         % set bar color
         barcolor = white;
-        
+
         % display rating image for correct prompt
         %dspl.cscale.width = 964;
         dspl.cscale.width = 1920;
@@ -122,21 +122,22 @@ try
         % paint black
         Screen('FillRect',dspl.cscale.w,0)
         % assign scale image
-        prompt_n = prompt_files(i).name;
-        dspl.cscale.texture = Screen('MakeTexture',theWindow, imread(prompt_n));
-        
+%         prompt_n = prompt_files(i).name;
+        %dspl.cscale.texture = Screen('MakeTexture',theWindow, imread(prompt_n));
+
         % placement
         dspl.cscale.rect = [...
             [dspl.xcenter dspl.ycenter]-[0.5*dspl.cscale.width 0.5*dspl.cscale.height] ...
             [dspl.xcenter dspl.ycenter]+[0.5*dspl.cscale.width 0.5*dspl.cscale.height]];
-        Screen('DrawTexture',dspl.cscale.w,dspl.cscale.texture,[],dspl.cscale.rect);
+        %Screen('DrawTexture',dspl.cscale.w,dspl.cscale.texture,[],dspl.cscale.rect);
+        Screen('DrawTexture',dspl.cscale.w, cue_tex{i},[],dspl.cscale.rect);
         time_start=GetSecs; %get start time in ms
         biopac_video(biopac, channel, channel.rating, 1);
-        
+
         % produce screen
         % Screen('CopyWindow',dspl.cscale.w, theWindow);
-        
-        
+
+
         % now set up rating scale below prompt
         SetMouse(lb,H/2); % set mouse at the left
 
@@ -194,12 +195,12 @@ try
         Screen('Flip', theWindow);
         WaitSecs(0.5);
         % Release texture:
-        Screen('Close', dspl.cscale.texture);
-        
+        %Screen('Close', dspl.cscale.texture);
+        Screen('Close', cue_tex{i});
+
     end
-    
+
 catch em
     display(em.message);
     Screen('CloseAll');
 end
-
