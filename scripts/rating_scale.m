@@ -93,7 +93,7 @@ dspl.ycenter = dspl.screenHeight/2;
 %         prompt_files(i).name = [ prompt_path filesep prompt_files(i).name ];
 %     end
 % end
-prompt_count = size(cue_tex,2);
+prompt_count = size(cue_tex,1);
 
 
 %----------------------------------------------------------------------
