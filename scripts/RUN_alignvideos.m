@@ -26,3 +26,10 @@ elseif ses_num == 4 && run_num > 2
     error('There are only 2 runs in session 4. Enter a valid run number.')
 end
 
+alignvideos(sub_num, ses_num, run_num, biopac, debug)
+
+run_str =  strcat('ses-',  sprintf('%02d', run_num));
+keySet = {'ses-01','ses-02','ses-03','ses-04'};
+valueSet = [4 4 3 2];
+M = containers.Map(keySet,valueSet);
+

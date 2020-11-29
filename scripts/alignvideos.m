@@ -86,6 +86,13 @@ rate=1;
 
 
 
+ses_str =  strcat('ses-',  sprintf('%02d', run_num));
+keySet = {'ses-01','ses-02','ses-03','ses-04'};
+valueSet = [4 4 3 2];
+M = containers.Map(keySet,valueSet);
+
+for r = run_num:M(ses_str)
+
 %% B. Directories ______________________________________________________________
 script_dir                      = pwd; % /home/spacetop/repos/alignvideos/scripts
 main_dir                        = fileparts(script_dir); % /home/spacetop/repos/alignvideos
@@ -95,7 +102,7 @@ taskname                        = 'alignvideos';
 bids_string                     = [strcat('sub-', sprintf('%04d', sub_num)), ...
     strcat('_ses-',sprintf('%02d', ses_num)),...
     strcat('_task-', taskname),...
-    strcat('_run-',  sprintf('-%02d', run_num))];
+    strcat('_run-',  sprintf('-%02d', r))];
 sub_save_dir = fullfile(main_dir, 'data', strcat('sub-', sprintf('%04d', sub_num)),...
     strcat('ses-',sprintf('%02d', ses_num)),...
     'beh'  );
@@ -106,7 +113,7 @@ if ~exist(repo_save_dir, 'dir');    mkdir(repo_save_dir);   end
 
 design_filename                 = fullfile(main_dir, 'design', 'spacetop_alignvideos_design.csv');
 design_file                     = readtable(design_filename);
-idx                             = design_file.session ==ses_num & design_file.run ==run_num;
+idx                             = design_file.session ==ses_num & design_file.run ==r;
 param_T                         = design_file(idx, :); % extract parameters for each session and run
 videos_per_run                  = size(param_T,1);
 
@@ -132,7 +139,7 @@ T = array2table(zeros(videos_per_run, size(vnames, 2)));
 T.Properties.VariableNames     = vnames;
 T.src_subject_id(:)            = sub_num;
 T.session_id(:)                = ses_num;
-T.param_run_num(:)             = run_num;
+T.param_run_num(:)             = r;
 T.param_video_filename         = param_T.video_name;
 
 
@@ -165,10 +172,12 @@ Screen('Flip',p.ptb.window);
 for v = 1:length(T.param_video_filename)
     preloadsecs =[];
     video_file      = fullfile(main_dir, 'stimuli', 'videos',strcat('ses-',sprintf('%02d', ses_num)),...
-        strcat('run-',sprintf('%02d', run_num)), T.param_video_filename{v});
+        strcat('run-',sprintf('%02d', r)), T.param_video_filename{v});
     [movie{v}, dur{v}, fps{v}, imgw{v}, imgh{v}] = Screen('OpenMovie', p.ptb.window, video_file, [], preloadsecs, [], pixelFormat, maxThreads);
     
+    
     cue_image = dir(fullfile(main_dir, 'stimuli', 'cues', '*.png')); 
+    cue_tex = cell(length(cue_image),1);
     for c = 1:length(cue_image)
 %         cue_image = fullfile(main_dir, 'stimuli', 'cues', '*.png');
         cue_filename = fullfile(cue_image(c).folder, cue_image(c).name);
@@ -211,6 +220,7 @@ T.param_start_biopac(:)                   = biopac_video(biopac, channel, channe
 WaitSecs(TR*6);
 
 %% 0. Experimental loop _________________________________________________________
+
 for trl = 1:size(T.param_video_filename,1)
     
     %% event 01. load videos _______________________________________________________
@@ -268,7 +278,7 @@ for trl = 1:size(T.param_video_filename,1)
     end % end while statement for playing until no more frames exist
     
     T.event01_video_end(trl) = GetSecs;
-    T.event01_biopact_stop(trl) = biopac_video(biopac,channel, channel.movie, 0);
+    T.event01_biopac_stop(trl) = biopac_video(biopac,channel, channel.movie, 0);
     
     Screen('Flip', p.ptb.window);
     KbReleaseWait;
@@ -298,6 +308,7 @@ end
 
 DrawFormattedText(p.ptb.window,'This is the end of this run\nPlease wait for experimenter\n\nExperimenters - press e','center',p.ptb.screenYpixels/2,255);
 T.param_end_instruct_onset(:)             = Screen('Flip', p.ptb.window);
+WaitKeyPress('e');
 T.param_end_biopac(:)                     = biopac_video(biopac, channel, channel.trigger, 0);
 T.param_experiment_duration(:) = T.param_end_instruct_onset(1) - T.param_trigger_onset(1);
 
@@ -344,7 +355,12 @@ psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolbox_
 save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
 
+clear p; clearvars; Screen('Close'); close all; sca;
+d.close()
 
+
+end
+close all; 
     function WaitKeyPress(kID)
         while KbCheck(-3); end  % Wait until all keys are released.
         
