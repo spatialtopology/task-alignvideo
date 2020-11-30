@@ -1,12 +1,18 @@
 function alignvideos(sub_num, ses_num, run_num, biopac, debug)
 
+HideCursor;
+ses_str =  strcat('ses-',  sprintf('%02d', run_num));
+keySet = {'ses-01','ses-02','ses-03','ses-04'};
+valueSet = [4 4 3 2];
+M = containers.Map(keySet,valueSet);
 
+for r = run_num:M(ses_str)
 
 % code by Heejung Jung and Luke Slipski
 % heejung.jung@colorado.edu
 % 11.27.2020
 
-
+debug = 0;
 
 %% -----------------------------------------------------------------------------
 %                                Parameters
@@ -86,12 +92,8 @@ rate=1;
 
 
 
-ses_str =  strcat('ses-',  sprintf('%02d', run_num));
-keySet = {'ses-01','ses-02','ses-03','ses-04'};
-valueSet = [4 4 3 2];
-M = containers.Map(keySet,valueSet);
 
-for r = run_num:M(ses_str)
+
 
 %% B. Directories ______________________________________________________________
 script_dir                      = pwd; % /home/spacetop/repos/alignvideos/scripts
@@ -308,7 +310,7 @@ end
 
 DrawFormattedText(p.ptb.window,'This is the end of this run\nPlease wait for experimenter\n\nExperimenters - press e','center',p.ptb.screenYpixels/2,255);
 T.param_end_instruct_onset(:)             = Screen('Flip', p.ptb.window);
-WaitKeyPress('e');
+WaitKeyPress(p.keys.end);
 T.param_end_biopac(:)                     = biopac_video(biopac, channel, channel.trigger, 0);
 T.param_experiment_duration(:) = T.param_end_instruct_onset(1) - T.param_trigger_onset(1);
 
@@ -355,8 +357,10 @@ psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolbox_
 save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
 
-clear p; clearvars; Screen('Close'); close all; sca;
-d.close()
+clear p;
+channel.d.close();  
+Screen('Close'); close all; sca;
+
 
 
 end
