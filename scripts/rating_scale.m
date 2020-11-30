@@ -196,7 +196,7 @@ try
         WaitSecs(0.5);
         % Release texture:
         %Screen('Close', dspl.cscale.texture);
-        Screen('Close', cue_tex{i});
+        %Screen('Close', cue_tex{i});
 
     end
 
