@@ -358,7 +358,7 @@ save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
 
 clear p;
-channel.d.close();  
+%channel.d.close();  
 Screen('Close'); close all; sca;
 
 
