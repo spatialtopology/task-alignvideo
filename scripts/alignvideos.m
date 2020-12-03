@@ -1,7 +1,7 @@
 function alignvideos(sub_num, ses_num, run_num, biopac, debug)
 
 HideCursor;
-ses_str =  strcat('ses-',  sprintf('%02d', run_num));
+ses_str =  strcat('ses-',  sprintf('%02d', ses_num));
 keySet = {'ses-01','ses-02','ses-03','ses-04'};
 valueSet = [4 4 3 2];
 M = containers.Map(keySet,valueSet);
@@ -12,7 +12,6 @@ for r = run_num:M(ses_str)
 % heejung.jung@colorado.edu
 % 11.27.2020
 
-debug = 0;
 
 %% -----------------------------------------------------------------------------
 %                                Parameters
@@ -125,7 +124,7 @@ videos_per_run                  = size(param_T,1);
 %image_scale                     = fullfile(image_filepath, image_scale_filename);
 
 %% D. making output table ________________________________________________________
-vnames = {'src_subject_id', 'session_id', 'param_run_num', 'param_trigger_onset', ...
+vnames = {'src_subject_id', 'session_id', 'param_run_num', 'param_trigger_onset', 'param_start_biopac',...
     'param_video_filename', 'event01_video_onset', 'event01_video_biopac', 'event01_video_end',...
     'event02_rating01_displayonset', 'event02_rating01_displaystop', 'event02_rating01_rating', 'event02_rating01_RT', 'event02_rating01_biopac_displayonset', 'event02_rating01_biopac_response',...
     'event02_rating02_displayonset', 'event02_rating02_displaystop', 'event02_rating02_rating', 'event02_rating02_RT', 'event02_rating02_biopac_displayonset', 'event02_rating02_biopac_response',...
@@ -358,7 +357,9 @@ save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
 
 clear p;
-%channel.d.close();  
+if biopac
+channel.d.close();  
+end
 Screen('Close'); close all; sca;
 
 
