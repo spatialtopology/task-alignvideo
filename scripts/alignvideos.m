@@ -33,7 +33,7 @@ if biopac == 1
     catch
         warning("u3 already imported!");
     end
-    
+
     % py.importlib.import_module('u3');
     % Check to see if u3 was imported correctly
     % py.help('u3')
@@ -103,7 +103,7 @@ taskname                        = 'alignvideos';
 bids_string                     = [strcat('sub-', sprintf('%04d', sub_num)), ...
     strcat('_ses-',sprintf('%02d', ses_num)),...
     strcat('_task-', taskname),...
-    strcat('_run-',  sprintf('-%02d', r))];
+    strcat('_run-',  sprintf('%02d', r))];
 sub_save_dir = fullfile(main_dir, 'data', strcat('sub-', sprintf('%04d', sub_num)),...
     strcat('ses-',sprintf('%02d', ses_num)),...
     'beh'  );
@@ -169,22 +169,23 @@ task_duration                  = 6.50;
 
 %% H. Make Images Into Textures ________________________________________________
 DrawFormattedText(p.ptb.window,sprintf('LOADING\n\n0%% complete'),'center','center',p.ptb.white );
+HideCursor;
 Screen('Flip',p.ptb.window);
 for v = 1:length(T.param_video_filename)
     preloadsecs =[];
     video_file      = fullfile(main_dir, 'stimuli', 'videos',strcat('ses-',sprintf('%02d', ses_num)),...
         strcat('run-',sprintf('%02d', r)), T.param_video_filename{v});
     [movie{v}, dur{v}, fps{v}, imgw{v}, imgh{v}] = Screen('OpenMovie', p.ptb.window, video_file, [], preloadsecs, [], pixelFormat, maxThreads);
-    
-    
-    cue_image = dir(fullfile(main_dir, 'stimuli', 'cues', '*.png')); 
+
+
+    cue_image = dir(fullfile(main_dir, 'stimuli', 'cues', '*.png'));
     cue_tex = cell(length(cue_image),1);
     for c = 1:length(cue_image)
 %         cue_image = fullfile(main_dir, 'stimuli', 'cues', '*.png');
         cue_filename = fullfile(cue_image(c).folder, cue_image(c).name);
         cue_tex{c} = Screen('MakeTexture', p.ptb.window, imread(cue_filename));
     end
-    
+
     % instruction, actual texture
     %actual_tex = Screen('MakeTexture', p.ptb.window, imread(image_scale)); % pure rating scale
     %start_tex = Screen('MakeTexture',p.ptb.window, imread(instruct_start));
@@ -202,7 +203,7 @@ end
 Screen('TextSize',p.ptb.window,72);
 DrawFormattedText(p.ptb.window,'.','center',p.ptb.screenYpixels/2,255);
 Screen('Flip',p.ptb.window);
-
+HideCursor;
 
 
 %% _______________________ Wait for Trigger to Begin ___________________________
@@ -223,7 +224,7 @@ WaitSecs(TR*6);
 %% 0. Experimental loop _________________________________________________________
 
 for trl = 1:size(T.param_video_filename,1)
-    
+
     %% event 01. load videos _______________________________________________________
     totalframes = floor(fps{trl} * dur{trl});
     fprintf('Movie: %s  : %f seconds duration, %f fps, w x h = %i x %i...\n', T.param_video_filename{trl}, dur{trl}, fps{trl}, imgw{trl}, imgh{trl});
@@ -233,9 +234,9 @@ for trl = 1:size(T.param_video_filename,1)
     % explog.movie_start(trl) = GetSecs;
     T.event01_video_onset(trl)         = GetSecs;
     T.event01_video_biopac(trl)        = biopac_video(biopac, channel, channel.movie, 1);
-    
+
     while i<totalframes-1
-        
+
         escape=0;
         [keyIsDown,secs,keyCode]=KbCheck;
         if (keyIsDown==1 && keyCode(p.keys.esc))
@@ -243,11 +244,11 @@ for trl = 1:size(T.param_video_filename,1)
             escape=2;
             % break;
         end
-        
-        
+
+
         % Only perform video image fetch/drawing if playback is active
         % and the movie actually has a video track (imgw and imgh > 0):
-        
+
         if ((abs(rate)>0) && (imgw{trl}>0) && (imgh{trl}>0))
             % Return next frame in movie, in sync with current playback
             % time and sound.
@@ -255,48 +256,48 @@ for trl = 1:size(T.param_video_filename,1)
             % new frame is ready yet in non-blocking mode (blocking == 0).
             % It is -1 if something went wrong and playback needs to be stopped:
             tex = Screen('GetMovieImage', p.ptb.window, movie{trl}, blocking);
-            
+
             % Valid texture returned?
             if tex < 0
                 % No, and there won't be any in the future, due to some
                 % error. Abort playback loop:
                 %  break;
             end
-            
+
             if tex == 0
                 % No new frame in polling wait (blocking == 0). Just sleep
                 % a bit and then retry.
                 WaitSecs('YieldSecs', 0.005);
                 continue;
             end
-            
+
             Screen('DrawTexture', p.ptb.window, tex, [], [], [], [], [], [], shader); % Draw the new texture immediately to screen:
             Screen('Flip', p.ptb.window); % Update display:
             Screen('Close', tex);% Release texture:
             i=i+1; % Framecounter:
-            
+
         end % end if statement for grabbing next frame
     end % end while statement for playing until no more frames exist
-    
+
     T.event01_video_end(trl) = GetSecs;
     T.event01_biopac_stop(trl) = biopac_video(biopac,channel, channel.movie, 0);
-    
+
     Screen('Flip', p.ptb.window);
     KbReleaseWait;
-    
+
     Screen('PlayMovie', movie{trl}, 0); % Done. Stop playback:
     Screen('CloseMovie', movie{trl});  % Close movie object:
-    
+
     % Release texture:
     %         Screen('Close', tex);
-    
+
     % if escape is pressed during video, exit
     if escape==2
         %break
     end
-    
+
     %% event 02. judgment ratings _______________________________________________________
-    
+
     T.event02_movie_biopac(trl)        = biopac_video(biopac, channel, channel.rating, 1);
     [ratings, times, RT] = rating_scale(p, cue_tex, biopac, channel);
     biopac_video(biopac, channel, channel.rating, 0);
@@ -321,7 +322,7 @@ for v = 1:videos_per_run
     T.event02_rating05_onset(v) = explog.rating.times{v}(5);
     T.event02_rating06_onset(v) = explog.rating.times{v}(6);
     T.event02_rating07_onset(v) = explog.rating.times{v}(7);
-    
+
     T.event02_rating01_rating(v) = explog.rating.ratings{v}(1);
     T.event02_rating02_rating(v) = explog.rating.ratings{v}(2);
     T.event02_rating03_rating(v) = explog.rating.ratings{v}(3);
@@ -329,7 +330,7 @@ for v = 1:videos_per_run
     T.event02_rating05_rating(v) = explog.rating.ratings{v}(5);
     T.event02_rating06_rating(v) = explog.rating.ratings{v}(6);
     T.event02_rating07_rating(v) = explog.rating.ratings{v}(7);
-    
+
     T.event02_rating01_RT(v)    = explog.rating.RT{v}(1);
     T.event02_rating02_RT(v)    = explog.rating.RT{v}(2);
     T.event02_rating03_RT(v)    = explog.rating.RT{v}(3);
@@ -337,9 +338,9 @@ for v = 1:videos_per_run
     T.event02_rating05_RT(v)    = explog.rating.RT{v}(5);
     T.event02_rating06_RT(v)    = explog.rating.RT{v}(6);
     T.event02_rating07_RT(v)    = explog.rating.RT{v}(7);
-    
-    
-    
+
+
+
 end
 
 %% _________________________ 8. save parameter _________________________________
@@ -351,30 +352,30 @@ writetable(T,repoFileName);
 
 
 % ptb parameters
-psychtoolbox_saveFileName = fullfile(sub_save_dir, [bids_string,'_psychtoolbox_params.mat' ]);
-psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolbox_params.mat' ]);
+psychtoolbox_saveFileName = fullfile(sub_save_dir, [bids_string,'_psychtoolboxparams.mat' ]);
+psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolboxparams.mat' ]);
 save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
 
 clear p;
 if biopac
-channel.d.close();  
+channel.d.close();
 end
 Screen('Close'); close all; sca;
 
 
 
 end
-close all; 
+close all;
     function WaitKeyPress(kID)
         while KbCheck(-3); end  % Wait until all keys are released.
-        
+
         while 1
             % Check the state of the keyboard.
             [ keyIsDown, ~, keyCode ] = KbCheck(-3);
             % If the user is pressing a key, then display its code number and name.
             if keyIsDown
-                
+
                 if keyCode(p.keys.esc)
                     cleanup; break;
                 elseif keyCode(kID)
