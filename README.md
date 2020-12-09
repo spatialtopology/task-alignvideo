@@ -1,4 +1,5 @@
 # alignvideo
+### Purpose
 This purpose of the alignvideo task is to have participants watch nearly 90 minutes of videos that vary in content.
 The videos include scenes intended to feature various kinds of empathic states, appetitive states, aversive states, social relationships, 
 scenescapes (e.g. mountains, oceans/beaches, outer space, urban/rural, natural disasters), animals, body parts,
@@ -29,3 +30,8 @@ they felt each of the dimensions of interest. For example, in the image below th
 a low level of disgust during the video they just viewed:
 
 ![disgust](disgust.png)
+
+### Running the Code
+To do
+### Folder Structure and Description
+To do
