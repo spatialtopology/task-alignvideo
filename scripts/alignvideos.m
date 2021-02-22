@@ -215,6 +215,11 @@ DisableKeysForKbCheck([]);
 DrawFormattedText(p.ptb.window,'Waiting for experimenter\n\nexperimenters - press s','center',p.ptb.screenYpixels/2,255);
 Screen('Flip', p.ptb.window);
 WaitKeyPress(p.keys.start); % press s
+
+Screen('DrawLines', p.ptb.window, p.fix.allCoords,...
+    p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
+Screen('Flip', p.ptb.window);
+
 WaitKeyPress(p.keys.trigger);
 T.param_trigger_onset(:) = GetSecs;
 T.param_start_biopac(:)                   = biopac_video(biopac, channel, channel.trigger, 1);
