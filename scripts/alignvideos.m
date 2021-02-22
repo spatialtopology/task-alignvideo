@@ -259,7 +259,7 @@ for trl = 1:size(T.param_video_filename,1)
 
             % Valid texture returned?
             if tex < 0
-                % No, and there won't be any in the future, due to some
+                % No, and there wont be any in the future, due to some
                 % error. Abort playback loop:
                 %  break;
             end
@@ -309,6 +309,7 @@ end
 %% save parameters
 
 DrawFormattedText(p.ptb.window,'This is the end of this run\nPlease wait for experimenter\n\nExperimenters - press e','center',p.ptb.screenYpixels/2,255);
+
 T.param_end_instruct_onset(:)             = Screen('Flip', p.ptb.window);
 WaitKeyPress(p.keys.end);
 T.param_end_biopac(:)                     = biopac_video(biopac, channel, channel.trigger, 0);
@@ -340,6 +341,9 @@ for v = 1:videos_per_run
     T.event02_rating07_RT(v)    = explog.rating.RT{v}(7);
 
 
+    %% ________________________ 7. temporarily save file _______________________
+    tmpFileName = fullfile(sub_save_dir,[strcat(bids_string,'_TEMP_beh.csv') ]);
+    writetable(T,tmpFileName);
 
 end
 
@@ -381,7 +385,7 @@ close all;
                 elseif keyCode(kID)
                     break;
                 end
-                % make sure key's released
+                % make sure key is released
                 while KbCheck(-3); end
             end
         end
