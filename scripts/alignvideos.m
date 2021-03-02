@@ -1,6 +1,6 @@
 function alignvideos(sub_num, ses_num, run_num, biopac, debug)
 
-HideCursor;
+
 ses_str =  strcat('ses-',  sprintf('%02d', ses_num));
 keySet = {'ses-01','ses-02','ses-03','ses-04'};
 valueSet = [4 4 3 2];
@@ -238,8 +238,8 @@ for trl = 1:size(T.param_video_filename,1)
 
     %% event 01. load videos _______________________________________________________
     totalframes = floor(fps{trl} * dur{trl});
-    fprintf('Movie: %s  : %f seconds duration, %f fps, w x h = %i x %i...\n', T.param_video_filename{trl}, dur{trl}, fps{trl}, imgw{trl}, imgh{trl});
-    disp('line 381')
+%     fprintf('Movie: %s  : %f seconds duration, %f fps, w x h = %i x %i...\n', T.param_video_filename{trl}, dur{trl}, fps{trl}, imgw{trl}, imgh{trl});
+%     disp('line 381')
     i=0;
     Screen('PlayMovie', movie{trl}, rate, 1, 1.0);
     % explog.movie_start(trl) = GetSecs;
@@ -315,6 +315,10 @@ for trl = 1:size(T.param_video_filename,1)
     explog.rating.ratings{trl} = ratings;
     explog.rating.times{trl} = times;
     explog.rating.RT{trl} = RT;
+    
+        %% ________________________ 7. temporarily save file _______________________
+    tmpFileName = fullfile(sub_save_dir,[strcat(bids_string,'_TEMP_beh.csv') ]);
+    writetable(T,tmpFileName);
 end
 
 %% save parameters
@@ -353,9 +357,7 @@ for v = 1:videos_per_run
     T.event02_rating07_RT(v)    = explog.rating.RT{v}(7);
 
 
-    %% ________________________ 7. temporarily save file _______________________
-    tmpFileName = fullfile(sub_save_dir,[strcat(bids_string,'_TEMP_beh.csv') ]);
-    writetable(T,tmpFileName);
+
 
 end
 
